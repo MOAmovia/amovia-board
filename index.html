@@ -228,6 +228,7 @@
 
   <nav class="main-nav" id="mainNav">
     <button data-nav="board" class="active">Meine Themen</button>
+    <button data-nav="jk">Themen JK</button>
     <button data-nav="jf">Daily Jour Fixe (09:00)</button>
   </nav>
 
@@ -280,13 +281,18 @@ window.storage = {
 const SNAPSHOT_DATE = "2026-08-07";
 
 const WORKSTREAMS = [
-  {id:"fahrzeuge", title:"Fahrzeugvertrieb & Flotte", src:"Todoist: Vehicle Sales/Mobility Reha · ClickUp: WS08 Fleet"},
-  {id:"ausschreibungen", title:"Ausschreibungen & Vertrieb", src:"Todoist: New Tenders · ClickUp: WS12 Tenders & B2B"},
-  {id:"kunden", title:"Kunden & Key Accounts", src:"ClickUp: WS11 Customer, Contracts & Key Accounts"},
-  {id:"personal", title:"Personal & Organisation", src:"Todoist: HR · ClickUp: WS10 People, Communication & Culture"},
-  {id:"legal", title:"Legal, Governance & Transition", src:"ClickUp: WS01 Transaction, Legal & Governance · WS13 MR Service"},
-  {id:"operations", title:"Tagesgeschäft / Operations", src:"Todoist: Operations · ClickUp: WS07 Operations, Dispo & Service Delivery"},
-  {id:"joint", title:"Joint-Themen (MO + JK)", src:"ClickUp: WS15 Add-on Track Fahrdienst Georg · gruppenweite Grundsatzentscheidungen"},
+  {id:"fahrzeuge", title:"Fahrzeugvertrieb & Flotte", src:"Todoist: Vehicle Sales/Mobility Reha · ClickUp: WS08 Fleet", owner:"MO"},
+  {id:"ausschreibungen", title:"Ausschreibungen & Vertrieb", src:"Todoist: New Tenders · ClickUp: WS12 Tenders & B2B", owner:"MO"},
+  {id:"kunden", title:"Kunden & Key Accounts", src:"ClickUp: WS11 Customer, Contracts & Key Accounts", owner:"MO"},
+  {id:"personal", title:"Personal & Organisation", src:"Todoist: HR · ClickUp: WS10 People, Communication & Culture", owner:"MO"},
+  {id:"legal", title:"Legal, Governance & Transition", src:"ClickUp: WS01 Transaction, Legal & Governance · WS13 MR Service", owner:"MO"},
+  {id:"operations", title:"Tagesgeschäft / Operations", src:"Todoist: Operations · ClickUp: WS07 Operations, Dispo & Service Delivery", owner:"MO"},
+  {id:"joint", title:"Joint-Themen (MO + JK)", src:"ClickUp: WS15 Add-on Track Fahrdienst Georg · gruppenweite Grundsatzentscheidungen", owner:"MO"},
+  {id:"jk_finance", title:"Finance / Accounting / Controlling", src:"Todoist: CFO Office/Finance/Accounting · ClickUp: WS05", owner:"JK"},
+  {id:"jk_financing", title:"Financing / Banks / Investors", src:"Todoist: Cash Management/Financing · ClickUp: WS04, WS06", owner:"JK"},
+  {id:"jk_ma", title:"Corporate Development / M&A Process", src:"Todoist: Holding/M&A", owner:"JK"},
+  {id:"jk_it", title:"IT / Systems / Data Infrastructure", src:"ClickUp: WS14 IT, Systems, Data & Accesses", owner:"JK"},
+  {id:"jk_brand", title:"Brand Execution / Central Services", src:"ClickUp: WS14 (Website/E-Mail) · Todoist: Holding/M&A", owner:"JK"},
 ];
 
 // Daily Jour Fixe — 09:00 Agenda mit Justin. Eigener Bereich, eigene ID (jf__...),
@@ -406,6 +412,44 @@ const REF_RAW = {
     {t:"Projekt Georg: Operative Kompatibilitätsprüfung", prio:"high", src:"ClickUp", due:null, assignee:"MO (Lead)"},
     {t:"Add-on Longlist: NRW-Targets priorisieren & Outreach starten", prio:"normal", src:"ClickUp", due:null, assignee:"MO"},
     {t:"KI-Projekt Payroll — AT „AI Zeiterfassung & Lohn“", prio:"normal", src:"Whiteboard 07.08. · verknüpft mit Todoist", due:null, assignee:"MO + JK"},
+  ],
+  jk_finance: [
+    {t:"YTD Trading Update", prio:"urgent", src:"Todoist", due:"2026-08-09", assignee:"JK"},
+    {t:"Steuerberaterauswahl: PKF vs. AC Christes vs. Rödl entscheiden", prio:"high", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Create Budget Model", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Pay RM Interest!", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Access to Holding Accounts", prio:"urgent", src:"Todoist", due:"2026-08-14", assignee:"JK"},
+    {t:"H2-AUCTUS-Reporting: Anforderungen abstimmen", prio:"high", src:"ClickUp", due:"2026-08-05", assignee:"JK"},
+    {t:"Operational KPI dashboard", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+  ],
+  jk_financing: [
+    {t:"Sale & Leaseback Liquidity", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Revolving Credit Facility", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Historical Cash Analysis (inkl. Zahlungen an RM)", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Cash Planning Tool / Cashflow Model", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Volksbank Account Access", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Finalize Agreement with Widmaier", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Holding-Bankkonten und operative Kontozugänge finalisieren", prio:"high", src:"ClickUp", due:null, assignee:"MO + JK"},
+  ],
+  jk_ma: [
+    {t:"Add-on Longlist finalisieren", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Feedback von Daniel zu Edelweiss einholen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Target-Name von Robert nachfassen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Österreich-Target Weinhold prüfen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Präsentationsentwurf für Target-Owner vorbereiten", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+  ],
+  jk_it: [
+    {t:"IT- und Systeminventar vervollständigen", prio:"urgent", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"Passwort-/Zugangsdaten-Übergabe: sicheres Protokoll", prio:"urgent", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"IT-Sicherheit & Backup-Baseline", prio:"urgent", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"Digitalisierungs-Roadmap: Bestandsaufnahme und Prioritäten", prio:"normal", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"Ausschreibungs-Dateiablage: Struktur & Übergabe", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"Datei-/Laufwerksregister aufbauen", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+  ],
+  jk_brand: [
+    {t:"Website & digitaler Auftritt: Eigentumsübertragung", prio:"normal", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"E-Mail-Umzug & digitale Identität", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"LinkedIn-Seite anlegen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
   ],
 };
 
@@ -541,33 +585,38 @@ function route(){
     renderDetail(hash.slice(3));
   } else if(hash === "jf"){
     renderJF();
+  } else if(hash === "jk"){
+    renderHome("JK");
   } else {
-    renderHome();
+    renderHome("MO");
   }
 }
 function updateNav(hash){
   const nav = document.getElementById("mainNav");
   if(!nav) return;
-  const isJF = hash === "jf";
+  let current = "board";
+  if(hash === "jf") current = "jf";
+  else if(hash === "jk") current = "jk";
   nav.querySelectorAll("button").forEach(b=>{
-    b.classList.toggle("active", (b.dataset.nav === "jf") === isJF);
+    b.classList.toggle("active", b.dataset.nav === current);
   });
 }
 window.addEventListener("hashchange", route);
 document.getElementById("homeLogoBtn").addEventListener("click", ()=> location.hash = "#/");
 document.querySelectorAll('#mainNav button').forEach(b=>{
   b.addEventListener("click", ()=>{
-    location.hash = b.dataset.nav === "jf" ? "#/jf" : "#/";
+    const map = {board:"#/", jk:"#/jk", jf:"#/jf"};
+    location.hash = map[b.dataset.nav] || "#/";
   });
 });
 
 // ======================================================================
 // HOME
 // ======================================================================
-function computeDueRadar(){
+function computeDueRadar(owner){
   const today = new Date(SNAPSHOT_DATE + "T00:00:00");
   let rows = [];
-  WORKSTREAMS.forEach(ws=>{
+  WORKSTREAMS.filter(ws => (ws.owner||"MO") === owner).forEach(ws=>{
     allItemsForWs(ws.id).forEach(it=>{
       const a = getAnn(it.id);
       if(a.done || !it.due) return;
@@ -580,20 +629,23 @@ function computeDueRadar(){
   return rows;
 }
 
-function renderHome(){
-  document.getElementById("headerSub").textContent = "Deine Bereiche · Stand aus ClickUp & Todoist · persönliche Notizen bleiben erhalten";
+function renderHome(owner){
+  owner = owner || "MO";
+  const label = owner === "JK" ? "Themen JK" : "Meine Themen";
+  document.getElementById("headerSub").textContent = `${label} · Stand aus ClickUp & Todoist · persönliche Notizen bleiben erhalten`;
   document.getElementById("headerAction").innerHTML = "";
 
   const view = document.getElementById("view");
-  const radarRows = computeDueRadar();
+  const scopedWS = WORKSTREAMS.filter(ws => (ws.owner||"MO") === owner);
+  const radarRows = computeDueRadar(owner);
   let radarHtml = `<div class="radar-title">Fristen-Radar <span class="count">${radarRows.length} in den nächsten 5 Tagen / überfällig</span></div>`;
   if(radarRows.length === 0){
     radarHtml += `<div class="radar-empty">Nichts Kritisches in den nächsten fünf Tagen.</div>`;
   } else {
     radarRows.forEach(r=>{
-      const label = r.diffDays < 0 ? `überfällig ${Math.abs(r.diffDays)} Tg.` : (r.diffDays===0 ? "heute fällig" : `in ${r.diffDays} Tg.`);
+      const label2 = r.diffDays < 0 ? `überfällig ${Math.abs(r.diffDays)} Tg.` : (r.diffDays===0 ? "heute fällig" : `in ${r.diffDays} Tg.`);
       radarHtml += `<div class="radar-row" data-ws="${r.wsId}" data-item="${r.id}">
-        <span class="radar-tag ${r.diffDays<=1?'':'warn'}">${label}</span>
+        <span class="radar-tag ${r.diffDays<=1?'':'warn'}">${label2}</span>
         <span class="radar-txt" style="flex:1;">${escapeHtml(r.title)}</span>
         <span class="radar-ws">${r.wsTitle}</span>
       </div>`;
@@ -601,7 +653,7 @@ function renderHome(){
   }
 
   let tilesHtml = "";
-  WORKSTREAMS.forEach(ws=>{
+  scopedWS.forEach(ws=>{
     const items = allItemsForWs(ws.id);
     const open = items.filter(i=> !getAnn(i.id).done);
     const doneCount = items.length - open.length;
@@ -623,18 +675,22 @@ function renderHome(){
     `;
   });
 
-  let inboxListHtml = inboxItems.map(it=>{
-    const opts = WORKSTREAMS.map(w=>`<option value="${w.id}">${w.title}</option>`).join("");
-    return `<div class="inbox-item" data-id="${it.id}">
-      <span class="txt">${escapeHtml(it.title)}</span>
-      <select data-role="assign"><option value="">→ Bereich zuordnen…</option>${opts}</select>
-      <button class="del" data-role="delInbox">Verwerfen</button>
-    </div>`;
-  }).join("");
+  let inboxListHtml = "";
+  if(owner === "MO"){
+    inboxListHtml = inboxItems.map(it=>{
+      const opts = scopedWS.map(w=>`<option value="${w.id}">${w.title}</option>`).join("");
+      return `<div class="inbox-item" data-id="${it.id}">
+        <span class="txt">${escapeHtml(it.title)}</span>
+        <select data-role="assign"><option value="">→ Bereich zuordnen…</option>${opts}</select>
+        <button class="del" data-role="delInbox">Verwerfen</button>
+      </div>`;
+    }).join("");
+  }
 
   view.innerHTML = `
     <div class="radar">${radarHtml}</div>
 
+    ${owner === "MO" ? `
     <div class="inbox">
       <div class="inbox-title">Schnell notieren — noch nicht einsortiert</div>
       <div class="inbox-input-row">
@@ -642,7 +698,7 @@ function renderHome(){
         <button class="btn small primary" id="btnInboxAdd">Ablegen</button>
       </div>
       <div class="inbox-list">${inboxListHtml}</div>
-    </div>
+    </div>` : ""}
 
     <div class="top-actions">
       <div class="meta">Referenz-Snapshot vom ${fmtDateDisplay(SNAPSHOT_DATE)} · Empfehlung: 1× täglich abends synchronisieren, jederzeit zusätzlich bei Bedarf</div>
@@ -664,41 +720,44 @@ function renderHome(){
       location.hash = "#/ws/" + r.dataset.ws;
     });
   });
-  document.getElementById("btnSyncAll").addEventListener("click", ()=> requestSync("alle Bereiche", null));
-  document.getElementById("btnSummaryAll").addEventListener("click", ()=> showSummary(null));
+  document.getElementById("btnSyncAll").addEventListener("click", ()=> requestSync(owner === "JK" ? "Themen JK" : "alle Bereiche", owner === "JK" ? "__jk_all__" : null));
+  document.getElementById("btnSummaryAll").addEventListener("click", ()=> showSummary(owner === "JK" ? "__jk_all__" : null));
 
-  const addInbox = async ()=>{
-    const val = document.getElementById("inboxInput").value.trim();
-    if(!val) return;
-    inboxItems.push({id:"inbox__"+Date.now(), title:val, createdAt:Date.now()});
-    await saveInboxItems();
-    renderHome();
-  };
-  document.getElementById("btnInboxAdd").addEventListener("click", addInbox);
-  document.getElementById("inboxInput").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addInbox(); });
-
-  view.querySelectorAll('[data-role="delInbox"]').forEach(btn=>{
-    btn.addEventListener("click", async ()=>{
-      const id = btn.closest(".inbox-item").dataset.id;
-      inboxItems = inboxItems.filter(i=>i.id!==id);
+  if(owner === "MO"){
+    const addInbox = async ()=>{
+      const val = document.getElementById("inboxInput").value.trim();
+      if(!val) return;
+      inboxItems.push({id:"inbox__"+Date.now(), title:val, createdAt:Date.now()});
       await saveInboxItems();
-      renderHome();
+      renderHome(owner);
+    };
+    document.getElementById("btnInboxAdd").addEventListener("click", addInbox);
+    document.getElementById("inboxInput").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addInbox(); });
+
+    view.querySelectorAll('[data-role="delInbox"]').forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const id = btn.closest(".inbox-item").dataset.id;
+        inboxItems = inboxItems.filter(i=>i.id!==id);
+        await saveInboxItems();
+        renderHome(owner);
+      });
     });
-  });
-  view.querySelectorAll('[data-role="assign"]').forEach(sel=>{
-    sel.addEventListener("change", async (e)=>{
-      const wsId = e.target.value;
-      if(!wsId) return;
-      const id = sel.closest(".inbox-item").dataset.id;
-      const inboxItem = inboxItems.find(i=>i.id===id);
-      if(!inboxItem) return;
-      manualItems.push({id:"manual__"+wsId+"__"+Date.now(), wsId, title:inboxItem.title, prio:"normal", due:null, dest:"none", createdAt:Date.now()});
-      inboxItems = inboxItems.filter(i=>i.id!==id);
-      await saveManualItems(); await saveInboxItems();
-      renderHome();
+    view.querySelectorAll('[data-role="assign"]').forEach(sel=>{
+      sel.addEventListener("change", async (e)=>{
+        const wsId = e.target.value;
+        if(!wsId) return;
+        const id = sel.closest(".inbox-item").dataset.id;
+        const inboxItem = inboxItems.find(i=>i.id===id);
+        if(!inboxItem) return;
+        manualItems.push({id:"manual__"+wsId+"__"+Date.now(), wsId, title:inboxItem.title, prio:"normal", due:null, dest:"none", createdAt:Date.now()});
+        inboxItems = inboxItems.filter(i=>i.id!==id);
+        await saveManualItems(); await saveInboxItems();
+        renderHome(owner);
+      });
     });
-  });
+  }
 }
+
 
 // ======================================================================
 // DETAIL
@@ -1169,9 +1228,17 @@ function buildOutboundLinesJF(){
 
 
 async function requestSync(scopeLabel, scopeWsId){
-  const outboundLines = scopeWsId === "jf"
-    ? buildOutboundLinesJF()
-    : buildOutboundLines(scopeWsId ? WORKSTREAMS.filter(w=>w.id===scopeWsId) : WORKSTREAMS);
+  let scope;
+  if(scopeWsId === "jf"){
+    scope = "jf";
+  } else if(scopeWsId === "__jk_all__"){
+    scope = WORKSTREAMS.filter(w=>w.owner==="JK");
+  } else if(scopeWsId){
+    scope = WORKSTREAMS.filter(w=>w.id===scopeWsId);
+  } else {
+    scope = WORKSTREAMS.filter(w=>(w.owner||"MO")==="MO");
+  }
+  const outboundLines = scope === "jf" ? buildOutboundLinesJF() : buildOutboundLines(scope);
   let text = `BOARD-SYNC — ${scopeLabel || "alle Bereiche"}\n\n`;
   text += `1) INBOUND — bitte Referenzdaten aus ClickUp + Todoist neu ziehen (meine Notizen bleiben erhalten).\n\n`;
   if(outboundLines.length > 0){
@@ -1188,8 +1255,15 @@ async function requestSync(scopeLabel, scopeWsId){
 // SUMMARY (für Chat / Übergabe an ClickUp & Todoist)
 // ======================================================================
 function showSummary(wsId){
-  const scope = wsId ? WORKSTREAMS.filter(w=>w.id===wsId) : WORKSTREAMS;
-  let lines = [`MO — Themen-Board — Zusammenfassung (${new Date().toLocaleDateString("de-DE")})`, ""];
+  let scope;
+  if(wsId === "__jk_all__"){
+    scope = WORKSTREAMS.filter(w=>w.owner==="JK");
+  } else if(wsId){
+    scope = WORKSTREAMS.filter(w=>w.id===wsId);
+  } else {
+    scope = WORKSTREAMS.filter(w=>(w.owner||"MO")==="MO");
+  }
+  let lines = [`Amovia Themen-Board — Zusammenfassung (${new Date().toLocaleDateString("de-DE")})`, ""];
   scope.forEach(ws=>{
     const items = allItemsForWs(ws.id);
     const relevant = items.filter(i=>{
