@@ -62,6 +62,7 @@
   .btn.primary:hover{background:var(--brand-coral-dark);border-color:var(--brand-coral-dark);}
   .btn.small{padding:5px 10px;font-size:11px;}
   .btn.ghost{border-color:var(--line);color:var(--mid);}
+  .btn.level-btn.active{background:var(--brand-coral);color:#fff;border-color:var(--brand-coral);}
 
   /* ---------- HOME: tiles ---------- */
   .top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
@@ -703,7 +704,7 @@ function renderHome(owner){
     <div class="top-actions">
       <div class="meta">Referenz-Snapshot vom ${fmtDateDisplay(SNAPSHOT_DATE)} · Empfehlung: 1× täglich abends synchronisieren, jederzeit zusätzlich bei Bedarf</div>
       <div style="display:flex;gap:8px;">
-        <button class="btn small" id="btnSummaryAll">Zusammenfassung ansehen</button>
+        <button class="btn small" id="btnSummaryAll">Agenda erzeugen</button>
         <button class="btn primary small" id="btnSyncAll">Board synchronisieren</button>
       </div>
     </div>
@@ -721,7 +722,7 @@ function renderHome(owner){
     });
   });
   document.getElementById("btnSyncAll").addEventListener("click", ()=> requestSync(owner === "JK" ? "Themen JK" : "alle Bereiche", owner === "JK" ? "__jk_all__" : null));
-  document.getElementById("btnSummaryAll").addEventListener("click", ()=> showSummary(owner === "JK" ? "__jk_all__" : null));
+  document.getElementById("btnSummaryAll").addEventListener("click", ()=> showSummary(owner === "JK" ? "__jk_all__" : null, owner === "JK" ? "Agenda — Themen JK" : "Agenda — Meine Themen"));
 
   if(owner === "MO"){
     const addInbox = async ()=>{
@@ -767,7 +768,10 @@ function renderHome(owner){
 // ======================================================================
 function renderJF(){
   document.getElementById("headerSub").textContent = "09:00 Uhr · gemeinsame Agenda mit Justin · Zuordnung gemäß Verantwortungsmatrix";
-  document.getElementById("headerAction").innerHTML = `<button class="btn small primary" id="btnSyncJF">Board synchronisieren</button>`;
+  document.getElementById("headerAction").innerHTML = `
+    <button class="btn small" id="btnAgendaJF">Agenda erzeugen</button>
+    <button class="btn small primary" id="btnSyncJF">Board synchronisieren</button>
+  `;
 
   const view = document.getElementById("view");
 
@@ -925,6 +929,7 @@ function renderJF(){
   `;
 
   document.getElementById("btnSyncJF").addEventListener("click", ()=> requestSync("Daily Jour Fixe", "jf"));
+  document.getElementById("btnAgendaJF").addEventListener("click", ()=> showSummary("jf", "Daily Jour Fixe"));
 
   view.querySelectorAll("[data-toggle]").forEach(h=>{
     h.addEventListener("click", (e)=>{
@@ -1254,46 +1259,193 @@ async function requestSync(scopeLabel, scopeWsId){
 // ======================================================================
 // SUMMARY (für Chat / Übergabe an ClickUp & Todoist)
 // ======================================================================
-function showSummary(wsId){
-  let scope;
-  if(wsId === "__jk_all__"){
-    scope = WORKSTREAMS.filter(w=>w.owner==="JK");
-  } else if(wsId){
-    scope = WORKSTREAMS.filter(w=>w.id===wsId);
+// ======================================================================
+// PROFESSIONELLE AGENDA — mit Detailgrad-Auswahl (High-Level / Standard / Detail)
+// scope: Workstream-Array (Home/JK) ODER der String "jf" (Daily Jour Fixe)
+// ======================================================================
+function ownerLabel(o){ return o === "JOINT" || o === "MO + JK" ? "MO + JK" : o; }
+
+function collectAgendaSections(scope){
+  // liefert [{ title, owner, kind: "narrative"|"metric"|"structured"|"projectsGroup", ...daten }]
+  if(scope === "jf"){
+    let sections = [];
+    JF_TOPICS.forEach(t=>{
+      if(t.type === "projects"){
+        const subItems = t.items.map(p=>{
+          const id = mkId("jf", t.t + "::" + p.t);
+          return {title:p.t, ann:getAnn(id)};
+        }).filter(x => !x.ann.done);
+        sections.push({title:t.t, owner:t.owner, kind:"projectsGroup", items:subItems});
+      } else if(t.type === "metric"){
+        sections.push({title:t.t, owner:t.owner, kind:"metric", topic:t, metric:getMetric(mkId("jf", t.t))});
+      } else if(t.type === "structured"){
+        sections.push({title:t.t, owner:t.owner, kind:"structured", topic:t, ann:getAnn(mkId("jf", t.t))});
+      } else {
+        sections.push({title:t.t, owner:t.owner, kind:"narrative", ann:getAnn(mkId("jf", t.t))});
+      }
+    });
+    const extra = manualItems.filter(i=>i.wsId==="jf");
+    if(extra.length){
+      extra.forEach(i=> sections.push({title:i.title, owner:"MO + JK", kind:"narrative", ann:getAnn(i.id), manual:true}));
+    }
+    return sections;
   } else {
-    scope = WORKSTREAMS.filter(w=>(w.owner||"MO")==="MO");
+    let sections = [];
+    scope.forEach(ws=>{
+      const items = allItemsForWs(ws.id).filter(i=> !getAnn(i.id).done);
+      if(items.length===0) return;
+      sections.push({title:ws.title, owner:null, kind:"tileGroup", items: items.map(i=>({title:i.title, ann:getAnn(i.id), due:i.due, prio:i.prio}))});
+    });
+    return sections;
   }
-  let lines = [`Amovia Cockpit — Zusammenfassung (${new Date().toLocaleDateString("de-DE")})`, ""];
-  scope.forEach(ws=>{
-    const items = allItemsForWs(ws.id);
-    const relevant = items.filter(i=>{
-      const a = getAnn(i.id);
-      return !a.done && (a.status.trim() || a.nextStep.trim() || a.blocker.trim() || i.manual);
-    });
-    if(relevant.length===0) return;
-    lines.push(`## ${ws.title}`);
-    relevant.forEach(i=>{
-      const a = getAnn(i.id);
-      lines.push(`- ${i.title}${i.manual ? " [NEU" + (i.dest && i.dest!=="none" ? " → " + i.dest : "") + "]" : ""}`);
-      if(a.status.trim()) lines.push(`    Stand: ${a.status.trim()}`);
-      if(a.nextStep.trim()) lines.push(`    Nächster Schritt: ${a.nextStep.trim()}`);
-      if(a.blocker.trim()) lines.push(`    Blocker: ${a.blocker.trim()}`);
-    });
-    lines.push("");
+}
+
+function formatAgendaText(scope, level, heading){
+  const sections = collectAgendaSections(scope);
+  const dateStr = new Date().toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+  let lines = [];
+  lines.push("AMOVIA GROUP");
+  lines.push(heading.toUpperCase());
+  lines.push(dateStr);
+  lines.push("");
+  lines.push("―".repeat(46));
+
+  let anyContent = false;
+
+  sections.forEach(sec=>{
+    if(sec.kind === "narrative"){
+      const a = sec.ann;
+      const hasContent = a.status.trim() || a.nextStep.trim() || a.blocker.trim();
+      if(level === "high" && !hasContent) return;
+      lines.push("");
+      lines.push(`${sec.title}${sec.owner ? "  ·  " + ownerLabel(sec.owner) : ""}`);
+      if(!hasContent){ lines.push("  (kein Update)"); anyContent = true; return; }
+      anyContent = true;
+      if(level === "high"){
+        lines.push(`  ${(a.status || a.nextStep).trim().split("\n")[0]}`);
+      } else {
+        if(a.status.trim()) lines.push(`  Stand: ${a.status.trim()}`);
+        if(a.nextStep.trim()) lines.push(`  Nächster Schritt: ${a.nextStep.trim()}`);
+        if(level === "detail" && a.blocker.trim()) lines.push(`  Blocker: ${a.blocker.trim()}`);
+      }
+    } else if(sec.kind === "metric"){
+      const m = sec.metric;
+      const hasVals = Object.values(m.values||{}).some(v=>v && String(v).trim());
+      if(level === "high" && !hasVals) return;
+      lines.push("");
+      lines.push(`${sec.title}  ·  ${ownerLabel(sec.owner)}`);
+      anyContent = true;
+      if(!hasVals){ lines.push("  (kein Stand hinterlegt)"); return; }
+      sec.topic.fields.forEach(f=>{
+        const v = m.values[f.key];
+        if(v && String(v).trim()) lines.push(`  ${f.label}: ${v}${f.unit||""}`);
+      });
+      if(sec.topic.fields.some(f=>f.key==="kontostand")){
+        const k = fmtNum(m.values.kontostand), e = fmtNum(m.values.einzahlungen), au = fmtNum(m.values.auszahlungen);
+        if(k !== null) lines.push(`  Saldo-Prognose Ende heute: ${(k+(e||0)-(au||0)).toLocaleString("de-DE")} €`);
+      }
+      if(level !== "high" && m.values.kommentar && m.values.kommentar.trim()) lines.push(`  Kommentar: ${m.values.kommentar.trim()}`);
+    } else if(sec.kind === "structured"){
+      const a = sec.ann;
+      const hasVals = a.fields && Object.values(a.fields).some(v=>v && String(v).trim());
+      if(level === "high" && !hasVals) return;
+      lines.push("");
+      lines.push(`${sec.title}  ·  ${ownerLabel(sec.owner)}`);
+      anyContent = true;
+      if(!hasVals){ lines.push("  (nichts zu berichten)"); return; }
+      sec.topic.fields.forEach(f=>{
+        const v = a.fields[f.key];
+        if(v && String(v).trim()) lines.push(`  ${f.label}: ${v.trim()}`);
+      });
+    } else if(sec.kind === "projectsGroup"){
+      if(level === "high" && sec.items.length === 0) return;
+      lines.push("");
+      lines.push(`${sec.title}  ·  ${ownerLabel(sec.owner)}`);
+      if(sec.items.length === 0){ lines.push("  (keine offenen Projekte)"); anyContent = true; return; }
+      anyContent = true;
+      sec.items.forEach(p=>{
+        const hasContent = p.ann.status.trim() || p.ann.nextStep.trim();
+        if(level === "high"){
+          lines.push(`  • ${p.title}${hasContent ? " — " + (p.ann.status || p.ann.nextStep).trim().split("\n")[0] : ""}`);
+        } else {
+          lines.push(`  • ${p.title}`);
+          if(p.ann.status.trim()) lines.push(`      Stand: ${p.ann.status.trim()}`);
+          if(p.ann.nextStep.trim()) lines.push(`      Nächster Schritt: ${p.ann.nextStep.trim()}`);
+          if(level === "detail" && p.ann.blocker.trim()) lines.push(`      Blocker: ${p.ann.blocker.trim()}`);
+        }
+      });
+    } else if(sec.kind === "tileGroup"){
+      const withContent = sec.items.filter(i=> i.ann.status.trim() || i.ann.nextStep.trim() || i.ann.blocker.trim());
+      if(level === "high" && withContent.length === 0) return;
+      lines.push("");
+      lines.push(sec.title.toUpperCase());
+      anyContent = true;
+      const toShow = level === "high" ? withContent : sec.items;
+      toShow.forEach(i=>{
+        const hasContent = i.ann.status.trim() || i.ann.nextStep.trim();
+        if(level === "high"){
+          lines.push(`  • ${i.title}${hasContent ? " — " + (i.ann.status || i.ann.nextStep).trim().split("\n")[0] : ""}`);
+        } else {
+          lines.push(`  • ${i.title}`);
+          if(i.ann.status.trim()) lines.push(`      Stand: ${i.ann.status.trim()}`);
+          if(i.ann.nextStep.trim()) lines.push(`      Nächster Schritt: ${i.ann.nextStep.trim()}`);
+          if(level === "detail" && i.ann.blocker.trim()) lines.push(`      Blocker: ${i.ann.blocker.trim()}`);
+        }
+      });
+    }
   });
-  const out = lines.join("\n").trim() || "Keine offenen Notizen erfasst.";
+
+  lines.push("");
+  lines.push("―".repeat(46));
+  lines.push("Amovia Group · erzeugt über Amovia Cockpit");
+
+  if(!anyContent){
+    return `AMOVIA GROUP\n${heading.toUpperCase()}\n${dateStr}\n\nKeine Einträge für diese Auswahl vorhanden.`;
+  }
+  return lines.join("\n");
+}
+
+function showSummary(wsId, heading){
+  let scope;
+  if(wsId === "jf"){ scope = "jf"; }
+  else if(wsId === "__jk_all__"){ scope = WORKSTREAMS.filter(w=>w.owner==="JK"); }
+  else if(wsId){ scope = WORKSTREAMS.filter(w=>w.id===wsId); }
+  else { scope = WORKSTREAMS.filter(w=>(w.owner||"MO")==="MO"); }
+
   const area = document.getElementById("summaryArea");
   area.innerHTML = `
     <div class="refresh-note" style="margin-top:20px;">
-      <div style="font-weight:700;margin-bottom:6px;">Zusammenfassung</div>
-      <pre style="white-space:pre-wrap;font-family:Arial;font-size:12px;">${escapeHtml(out)}</pre>
-      <button class="btn small" id="btnCopySum" style="margin-top:8px;">Kopieren</button>
+      <div style="font-weight:700;margin-bottom:10px;">Professionelle Agenda</div>
+      <div class="btn-row" style="margin-bottom:10px;">
+        <button class="btn small level-btn active" data-level="high">High-Level</button>
+        <button class="btn small level-btn" data-level="standard">Standard</button>
+        <button class="btn small level-btn" data-level="detail">Detail</button>
+      </div>
+      <pre id="agendaOutput" style="white-space:pre-wrap;font-family:Arial;font-size:12.5px;background:#fff;border:1px solid var(--line-soft);padding:14px;border-radius:var(--radius);max-height:420px;overflow:auto;"></pre>
+      <div class="btn-row" style="margin-top:8px;">
+        <button class="btn small primary" id="btnCopyAgenda">Agenda kopieren</button>
+      </div>
     </div>
   `;
-  document.getElementById("btnCopySum").addEventListener("click", async ()=>{
-    try{ await navigator.clipboard.writeText(out); }catch(e){}
+
+  let currentLevel = "high";
+  function render(){
+    document.getElementById("agendaOutput").textContent = formatAgendaText(scope, currentLevel, heading);
+  }
+  area.querySelectorAll(".level-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      area.querySelectorAll(".level-btn").forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      currentLevel = btn.dataset.level;
+      render();
+    });
   });
+  document.getElementById("btnCopyAgenda").addEventListener("click", async ()=>{
+    try{ await navigator.clipboard.writeText(document.getElementById("agendaOutput").textContent); }catch(e){}
+  });
+  render();
 }
+
 
 // ======================================================================
 // HELPERS
