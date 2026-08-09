@@ -63,6 +63,22 @@
   .btn.small{padding:5px 10px;font-size:11px;}
   .btn.ghost{border-color:var(--line);color:var(--mid);}
   .btn.level-btn.active{background:var(--brand-coral);color:#fff;border-color:var(--brand-coral);}
+  .pin-btn{background:none;border:none;cursor:pointer;font-size:15px;line-height:1;padding:0 2px;color:var(--line);flex:none;}
+  .pin-btn.pinned{color:var(--brand-coral);}
+  .focus-box{border:1px solid var(--brand-coral);border-radius:var(--radius);padding:14px 16px;margin-bottom:20px;background:#fff;}
+  .focus-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;color:var(--brand-coral-dark);}
+  .focus-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px;cursor:pointer;}
+  .focus-row:last-child{border-bottom:none;}
+  .focus-row:hover .focus-txt{text-decoration:underline;}
+  .focus-empty{font-size:12px;color:var(--mid);}
+  .week-day{margin-top:20px;}
+  .week-day-head{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--mid);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--line-soft);}
+  .week-day-head.today{color:var(--brand-coral-dark);}
+  .week-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:13px;cursor:pointer;}
+  .week-row:hover .week-txt{text-decoration:underline;}
+  .week-owner{font-size:9.5px;border:1px solid var(--line);border-radius:6px;padding:0 6px;color:var(--mid);white-space:nowrap;}
+  .week-ws{font-size:10.5px;color:var(--mid);white-space:nowrap;margin-left:auto;}
+  .week-empty{font-size:12.5px;color:var(--mid);padding:20px 0;text-align:center;}
 
   /* ---------- HOME: tiles ---------- */
   .top-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
@@ -230,6 +246,7 @@
   <nav class="main-nav" id="mainNav">
     <button data-nav="board" class="active">Meine Themen</button>
     <button data-nav="jk">Themen JK</button>
+    <button data-nav="week">Diese Woche</button>
     <button data-nav="jf">Daily Jour Fixe (09:00)</button>
   </nav>
 
@@ -519,7 +536,7 @@ async function saveInboxItems(){
   await window.storage.set("inbox_items", JSON.stringify(inboxItems));
 }
 function getAnn(id){
-  return annotations[id] || {status:"", nextStep:"", blocker:"", fields:{}, done:false, updatedAt:null};
+  return annotations[id] || {status:"", nextStep:"", blocker:"", fields:{}, done:false, pinned:false, updatedAt:null};
 }
 function setAnn(id, patch){
   const cur = getAnn(id);
@@ -588,6 +605,8 @@ function route(){
     renderJF();
   } else if(hash === "jk"){
     renderHome("JK");
+  } else if(hash === "week"){
+    renderWeek();
   } else {
     renderHome("MO");
   }
@@ -598,6 +617,7 @@ function updateNav(hash){
   let current = "board";
   if(hash === "jf") current = "jf";
   else if(hash === "jk") current = "jk";
+  else if(hash === "week") current = "week";
   nav.querySelectorAll("button").forEach(b=>{
     b.classList.toggle("active", b.dataset.nav === current);
   });
@@ -606,7 +626,7 @@ window.addEventListener("hashchange", route);
 document.getElementById("homeLogoBtn").addEventListener("click", ()=> location.hash = "#/");
 document.querySelectorAll('#mainNav button').forEach(b=>{
   b.addEventListener("click", ()=>{
-    const map = {board:"#/", jk:"#/jk", jf:"#/jf"};
+    const map = {board:"#/", jk:"#/jk", jf:"#/jf", week:"#/week"};
     location.hash = map[b.dataset.nav] || "#/";
   });
 });
@@ -638,6 +658,27 @@ function renderHome(owner){
 
   const view = document.getElementById("view");
   const scopedWS = WORKSTREAMS.filter(ws => (ws.owner||"MO") === owner);
+
+  let focusHtml = "";
+  let focusRows = [];
+  scopedWS.forEach(ws=>{
+    allItemsForWs(ws.id).forEach(it=>{
+      const a = getAnn(it.id);
+      if(a.pinned && !a.done) focusRows.push({...it, wsId:ws.id, wsTitle:ws.title});
+    });
+  });
+  if(focusRows.length){
+    focusHtml = `<div class="focus-box"><div class="focus-title">Fokus (${focusRows.length})</div>`;
+    focusRows.forEach(r=>{
+      focusHtml += `<div class="focus-row" data-ws="${r.wsId}" data-item="${r.id}">
+        <span class="prio-dot prio-${r.prio}"></span>
+        <span class="focus-txt" style="flex:1;">${escapeHtml(r.title)}</span>
+        <span class="radar-ws">${r.wsTitle}</span>
+      </div>`;
+    });
+    focusHtml += `</div>`;
+  }
+
   const radarRows = computeDueRadar(owner);
   let radarHtml = `<div class="radar-title">Fristen-Radar <span class="count">${radarRows.length} in den nächsten 5 Tagen / überfällig</span></div>`;
   if(radarRows.length === 0){
@@ -689,6 +730,7 @@ function renderHome(owner){
   }
 
   view.innerHTML = `
+    ${focusHtml}
     <div class="radar">${radarHtml}</div>
 
     ${owner === "MO" ? `
@@ -716,6 +758,12 @@ function renderHome(owner){
     t.addEventListener("click", ()=> location.hash = "#/ws/" + t.dataset.ws);
   });
   view.querySelectorAll(".radar-row").forEach(r=>{
+    r.addEventListener("click", ()=>{
+      expanded[r.dataset.item] = true;
+      location.hash = "#/ws/" + r.dataset.ws;
+    });
+  });
+  view.querySelectorAll(".focus-row").forEach(r=>{
     r.addEventListener("click", ()=>{
       expanded[r.dataset.item] = true;
       location.hash = "#/ws/" + r.dataset.ws;
@@ -1004,6 +1052,95 @@ function renderJF(){
 }
 
 
+// ======================================================================
+// DIESE WOCHE — Fristen der naechsten 7 Tage, bereichsuebergreifend (MO + JK)
+// ======================================================================
+function renderWeek(){
+  document.getElementById("headerSub").textContent = "Alle Fristen der nächsten 7 Tage — MO & JK zusammen";
+  document.getElementById("headerAction").innerHTML = "";
+
+  const view = document.getElementById("view");
+  const today = new Date(SNAPSHOT_DATE + "T00:00:00");
+
+  let rows = [];
+  WORKSTREAMS.forEach(ws=>{
+    allItemsForWs(ws.id).forEach(it=>{
+      const a = getAnn(it.id);
+      if(a.done || !it.due) return;
+      const d = new Date(it.due + "T00:00:00");
+      const diffDays = Math.round((d - today) / 86400000);
+      if(diffDays <= 7) rows.push({...it, wsTitle:ws.title, wsId:ws.id, owner:ws.owner||"MO", diffDays, dueDate:it.due});
+    });
+  });
+  // JF-Projekte mit Frist ebenfalls einbeziehen
+  JF_TOPICS.filter(t=>t.type==="projects").forEach(t=>{
+    t.items.forEach(p=>{
+      if(!p.due) return;
+      const id = mkId("jf", t.t + "::" + p.t);
+      const a = getAnn(id);
+      if(a.done) return;
+      const d = new Date(p.due + "T00:00:00");
+      const diffDays = Math.round((d - today) / 86400000);
+      if(diffDays <= 7) rows.push({id, title:p.t, prio:p.prio, wsTitle:"Daily JF — " + t.t, wsId:"jf", owner:"JK", diffDays, dueDate:p.due});
+    });
+  });
+
+  rows.sort((a,b)=>a.diffDays-b.diffDays);
+
+  const overdue = rows.filter(r=>r.diffDays < 0);
+  const upcoming = rows.filter(r=>r.diffDays >= 0);
+
+  let html = "";
+  if(overdue.length){
+    html += `<div class="focus-box" style="border-color:#8a1f1f;">
+      <div class="focus-title" style="color:#8a1f1f;">Überfällig (${overdue.length})</div>`;
+    overdue.forEach(r=>{
+      html += weekRowHtml(r);
+    });
+    html += `</div>`;
+  }
+
+  // Gruppieren nach Tag
+  const byDay = {};
+  upcoming.forEach(r=>{
+    if(!byDay[r.dueDate]) byDay[r.dueDate] = [];
+    byDay[r.dueDate].push(r);
+  });
+  const days = Object.keys(byDay).sort();
+
+  if(days.length === 0 && overdue.length === 0){
+    html += `<div class="week-empty">Keine Fristen in den nächsten 7 Tagen.</div>`;
+  }
+
+  days.forEach(dateStr=>{
+    const d = new Date(dateStr + "T00:00:00");
+    const diffDays = Math.round((d - today) / 86400000);
+    const isToday = diffDays === 0;
+    const dayLabel = isToday ? "Heute" : (diffDays === 1 ? "Morgen" : d.toLocaleDateString("de-DE",{weekday:"long"}));
+    html += `<div class="week-day">
+      <div class="week-day-head ${isToday?'today':''}">${dayLabel} · ${d.toLocaleDateString("de-DE",{day:"2-digit",month:"2-digit"})}</div>`;
+    byDay[dateStr].forEach(r=> html += weekRowHtml(r));
+    html += `</div>`;
+  });
+
+  view.innerHTML = `<div class="detail-head"><div><div class="detail-title">Diese Woche</div><div class="detail-src">Alle offenen Fristen, MO und JK zusammen, sortiert nach Datum</div></div></div>${html}`;
+
+  view.querySelectorAll("[data-jump-ws]").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      expanded[el.dataset.jumpItem] = true;
+      location.hash = el.dataset.jumpWs === "jf" ? "#/jf" : "#/ws/" + el.dataset.jumpWs;
+    });
+  });
+}
+function weekRowHtml(r){
+  return `<div class="week-row" data-jump-ws="${r.wsId}" data-jump-item="${r.id}">
+    <span class="prio-dot prio-${r.prio}"></span>
+    <span class="week-owner">${r.owner === "JOINT" ? "MO+JK" : r.owner}</span>
+    <span class="week-txt" style="flex:1;">${escapeHtml(r.title)}</span>
+    <span class="week-ws">${r.wsTitle}</span>
+  </div>`;
+}
+
 function renderDetail(wsId){
   const ws = WORKSTREAMS.find(w=>w.id===wsId);
   if(!ws){ location.hash="#/"; return; }
@@ -1027,6 +1164,7 @@ function renderDetail(wsId){
         <div class="item-head" data-toggle="${it.id}">
           <div class="item-head-left">
             <input type="checkbox" data-role="done" data-id="${it.id}" ${a.done?"checked":""}>
+            <button class="pin-btn ${a.pinned?'pinned':''}" data-role="pin" data-id="${it.id}" title="Als Fokus markieren">${a.pinned?"★":"☆"}</button>
             <span class="prio-dot prio-${it.prio}" title="${PRIO_LABEL[it.prio]}"></span>
             <span class="item-title">${escapeHtml(it.title)}</span>
           </div>
@@ -1113,6 +1251,15 @@ function renderDetail(wsId){
     cb.addEventListener("click", (e)=> e.stopPropagation());
     cb.addEventListener("change", async (e)=>{
       setAnn(e.target.dataset.id, {done:e.target.checked});
+      await saveAnnotations();
+      renderDetail(wsId);
+    });
+  });
+  view.querySelectorAll('[data-role="pin"]').forEach(btn=>{
+    btn.addEventListener("click", async (e)=>{
+      e.stopPropagation();
+      const id = e.target.dataset.id;
+      setAnn(id, {pinned: !getAnn(id).pinned});
       await saveAnnotations();
       renderDetail(wsId);
     });
