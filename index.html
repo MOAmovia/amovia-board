@@ -296,7 +296,7 @@ window.storage = {
 // Wird bei "Aktualisierung anstoßen" im Chat neu erzeugt und hier ersetzt.
 // Stabile IDs, damit persönliche Notizen (Annotationen) beim Refresh erhalten bleiben.
 // ======================================================================
-const SNAPSHOT_DATE = "2026-08-07";
+const SNAPSHOT_DATE = "2026-08-12";
 
 const WORKSTREAMS = [
   {id:"fahrzeuge", title:"Fahrzeugvertrieb & Flotte", src:"Todoist: Vehicle Sales/Mobility Reha · ClickUp: WS08 Fleet", owner:"MO"},
@@ -387,41 +387,46 @@ const REF_RAW = {
     {t:"Abstimmung mit Holding: Deal-Expansion-Overview", prio:"high", src:"Whiteboard 07.08.", due:null, assignee:"MO + JK"},
     {t:"Rote Fahrzeuge primär zum Verkauf: ggf. auf andere Farben als Weiß ausweichen (möglicherweise leichter verfügbar) — prüfen", prio:"normal", src:"Whiteboard 07.08.", due:null, assignee:"MO"},
     {t:"Termin Ford-Händler Hr. Schlenk, Anfang September (RM-Teilnahme noch offen)", prio:"high", src:"Whiteboard 07.08.", due:null, assignee:"MO"},
+    {t:"Fahrzeugverkauf Ford Transit an Hr. Kurz übernehmen (mit Rüdiger)", prio:"urgent", src:"ClickUp · Todoist", due:"2026-08-12", assignee:"MO"},
   ],
   ausschreibungen: [
-    {t:"Lübbecke: Umlaufbeschlüsse ohne „beauftragen“ neu fassen und versenden", prio:"high", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Lübbecke: Vergabeentscheidung nachhalten (Angebot abgegeben, LWL-Eingang bestätigt 06.08., Zuschlag erwartet aber nicht gesichert)", prio:"high", src:"Todoist · ClickUp", due:null, assignee:"MO + JK"},
     {t:"Paderborn: Bid-Vorbereitung (Need to Bid)", prio:"normal", src:"Todoist", due:null, assignee:"MO"},
     {t:"Bielefeld / Behlen: Pipeline beobachten", prio:"normal", src:"Todoist", due:null, assignee:"MO"},
     {t:"Tender-Pipeline 2026/27 aufbauen", prio:"high", src:"ClickUp", due:null, assignee:"MO"},
     {t:"KI-Projekt Ausschreibungen — AT „AI Tender Intelligence“", prio:"high", src:"Whiteboard 07.08. · verknüpft mit Todoist", due:null, assignee:"MO"},
   ],
   kunden: [
-    {t:"Brilon", prio:"urgent", src:"Todoist · Unterpunkt von \"Termin vereinbaren: Arnsberg & Brilon\" — Caritas Hr. Kraft, 03.09. 08:30 fix", due:"2026-09-03", assignee:"MO"},
-    {t:"Arnsberg", prio:"urgent", src:"Todoist · Unterpunkt von \"Termin vereinbaren: Arnsberg & Brilon\" — Rückmeldung Hr. Demming ausstehend, keine feste Frist", due:null, assignee:"MO"},
+    {t:"Brilon", prio:"urgent", src:"Todoist · Unterpunkt \"Termin vereinbaren: Arnsberg & Brilon\" — Caritas Hr. Kraft, 03.09. 08:30 fix", due:"2026-09-03", assignee:"MO"},
+    {t:"Arnsberg", prio:"high", src:"Todoist · Unterpunkt \"Termin vereinbaren: Arnsberg & Brilon\" — Termin mit Hr. Demming fix vereinbart! Jetzt: Gesprächsvorbereitung", due:"2026-08-17", assignee:"MO"},
     {t:"Datenbank Schlüsselkundenkontakte aufbauen", prio:"urgent", src:"Todoist", due:"2026-08-14", assignee:"MO"},
     {t:"Förderkunden-Übergabekonzept mit Rüdiger/Justin abstimmen", prio:"urgent", src:"Todoist", due:"2026-07-27", assignee:"MO"},
     {t:"Renewal-Planung Top-Kunden 2028–2030", prio:"high", src:"ClickUp", due:null, assignee:"MO"},
   ],
   personal: [
     {t:"Neue Konditionen mit Tobias und Christoph finalisieren", prio:"urgent", src:"Todoist", due:"2026-08-11", assignee:"MO"},
-    {t:"Neueinstellung Dispo vorantreiben", prio:"urgent", src:"Todoist", due:null, assignee:"MO"},
+    {t:"Dispo-Mitarbeiter: Veröffentlichung der freigegebenen Stellenausschreibung nachhalten (online 12./13.08., Print 15./16.08.)", prio:"high", src:"Todoist", due:"2026-08-17", assignee:"MO"},
     {t:"Organigramm inkl. Funktionsbeschreibungen erstellen", prio:"normal", src:"Todoist", due:null, assignee:"MO"},
     {t:"Mitarbeiterbrief finalisieren", prio:"normal", src:"Todoist", due:null, assignee:"MO"},
     {t:"Beförderungen Häger & Tobias Müller — Umlaufbeschlüsse beide Ebenen", prio:"high", src:"ClickUp", due:null, assignee:"MO"},
+    {t:"Christoph Häger: Vergütungsstruktur gesellschaftsübergreifend sauber klären (Zusage: nicht weniger als bisher)", prio:"urgent", src:"ClickUp · Todoist", due:"2026-08-14", assignee:"MO"},
   ],
   legal: [
-    {t:"SFA-Beitritt Müller Reisen: Unterschriftenseiten & Informationsanfrage", prio:"urgent", src:"ClickUp", due:"2026-08-17", assignee:"MO + JK"},
-    {t:"Hiddemann-Vertrag bis Ende der Woche abschließen", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Hiddemann-Vertrag abschließen (Frist „Ende der Woche“ bereits verstrichen — Status prüfen)", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
     {t:"MR Service: Aufschmelzung/Formwechsel — Ziel August 2026", prio:"normal", src:"ClickUp", due:null, assignee:"MO"},
     {t:"Cross-Charging-Lücke MO/JK: Interims-SLA bis EAV 01.01.2027", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
     {t:"Verkehrsleiter (PBefG): Eintragung Oettl + Brücke Müller — kritischer Pfad", prio:"urgent", src:"ClickUp", due:null, assignee:"MO"},
     {t:"D&O-Versicherungsantrag ausfüllen und einreichen", prio:"urgent", src:"ClickUp", due:null, assignee:"MO"},
   ],
   operations: [
-    {t:"Übernahme HMB-Aufgaben: Zusammenfassung der Aufgaben einholen", prio:"urgent", src:"Todoist", due:"2026-08-07", assignee:"MO"},
+    {t:"S-Firm mit Hr. Lahme installieren, Zahlungsfähigkeit testen (Ziel: Löhne 13.08. überweisbar)", prio:"urgent", src:"Todoist", due:"2026-08-12", assignee:"MO"},
+    {t:"Löhne überweisen", prio:"urgent", src:"Todoist", due:"2026-08-13", assignee:"MO"},
+    {t:"WüT-Zusatzlinie: schriftliche Auftragsbestätigung von Fr. Lotz einholen", prio:"high", src:"Todoist", due:"2026-08-14", assignee:"MO"},
+    {t:"Übernahme HMB-Aufgaben: Zusammenfassung der Aufgaben einholen (Frist 07.08. verstrichen — nachfassen)", prio:"urgent", src:"Todoist", due:null, assignee:"MO"},
     {t:"Vollständigen Satz Passcodes/Passwörter/Schlüssel für Safes beschaffen", prio:"urgent", src:"Todoist", due:null, assignee:"MO"},
     {t:"Prozess für tägliche Kleinteileinkäufe abstimmen", prio:"urgent", src:"Todoist", due:null, assignee:"MO"},
     {t:"Passwort-Manager einrichten: alle Zugangsdaten zentral sichern", prio:"urgent", src:"ClickUp", due:null, assignee:"MO"},
+    {t:"Entmisten!", prio:"urgent", src:"Todoist", due:"2026-09-04", assignee:"JK"},
   ],
   joint: [
     {t:"Projekt Georg: FDD Executive Review & Kaufpreisposition", prio:"urgent", src:"ClickUp", due:"2026-08-14", assignee:"MO + JK"},
@@ -429,17 +434,20 @@ const REF_RAW = {
     {t:"Projekt Georg: Nachfolgelösung Tsepetonidis — Rückmeldung Entwurf & Rechtsberater-Call", prio:"high", src:"ClickUp", due:null, assignee:"JK (Lead)"},
     {t:"Projekt Georg: Financial-DD-Report (A&M) — 1st Draft erhalten, Review ausstehend", prio:"high", src:"ClickUp", due:null, assignee:"JK (Lead)"},
     {t:"Projekt Georg: Operative Kompatibilitätsprüfung", prio:"high", src:"ClickUp", due:null, assignee:"MO (Lead)"},
+    {t:"Projekt Georg: GKV-Reform 2027 als DD-Punkt prüfen (nur falls GKV-Anteil im Umsatz)", prio:"normal", src:"ClickUp", due:null, assignee:"MO"},
     {t:"Add-on Longlist: NRW-Targets priorisieren & Outreach starten", prio:"normal", src:"ClickUp", due:null, assignee:"MO"},
     {t:"KI-Projekt Payroll — AT „AI Zeiterfassung & Lohn“", prio:"normal", src:"Whiteboard 07.08. · verknüpft mit Todoist", due:null, assignee:"MO + JK"},
   ],
   jk_finance: [
     {t:"YTD Trading Update", prio:"urgent", src:"Todoist", due:"2026-08-09", assignee:"JK"},
-    {t:"Steuerberaterauswahl: PKF vs. AC Christes vs. Rödl entscheiden", prio:"high", src:"ClickUp", due:null, assignee:"MO + JK"},
+    {t:"Steuerberaterauswahl: PKF vs. AC Christes vs. Rödl entscheiden", prio:"high", src:"ClickUp · Todoist", due:null, assignee:"MO + JK"},
+    {t:"2025 Abschluss von Steuerberatern einholen", prio:"high", src:"Todoist", due:null, assignee:"JK"},
     {t:"Create Budget Model", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
     {t:"Pay RM Interest!", prio:"urgent", src:"Todoist", due:null, assignee:"JK"},
     {t:"Access to Holding Accounts", prio:"urgent", src:"Todoist", due:"2026-08-14", assignee:"JK"},
     {t:"H2-AUCTUS-Reporting: Anforderungen abstimmen", prio:"high", src:"ClickUp", due:"2026-08-05", assignee:"JK"},
     {t:"Operational KPI dashboard", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"Rüdiger Tantieme 2026: vertragskonform prüfen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
   ],
   jk_financing: [
     {t:"Sale & Leaseback Liquidity", prio:"urgent", src:"ClickUp", due:null, assignee:"MO + JK"},
@@ -452,6 +460,8 @@ const REF_RAW = {
   ],
   jk_ma: [
     {t:"Add-on Longlist finalisieren", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
+    {t:"Unternehmensliste ~100 Akquisitionsziele zentral ablegen", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
+    {t:"M&A-Ansprache: Vorschlag für systematischen Outreach erstellen", prio:"high", src:"ClickUp", due:null, assignee:"JK"},
     {t:"Feedback von Daniel zu Edelweiss einholen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
     {t:"Target-Name von Robert nachfassen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
     {t:"Österreich-Target Weinhold prüfen", prio:"normal", src:"Todoist", due:null, assignee:"JK"},
